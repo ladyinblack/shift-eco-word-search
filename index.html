@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Shift: Eco Word Search & Save</title>
+		<!-- Tailwind CSS for modern responsive layout and UI components -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden relative">
+		<!-- CANVAS BACKGROUND (Ecosystem Shift Stage) -->
+		<div class="fixed inset-0 z-0 pointer-events-none">
+			<canvas id="ecoCanvas" class="w-full h-full block"></canvas>
+		</div>
+		
+		<!-- MAIN UI OVERLAY -->
+		<div class="relative z-10 flex flex-col min-h-screen justify-between max-w-5xl mx-auto w-full p-3 sm:p-6">
+			
+			<!-- TOP BAR: Title, Score, Health & Category Selector -->
+			<header class="w-full glass-panel text-slate-800 rounded-2xl p-4 shadow-xll mb-4">
+				<div class="flex flex-wrap justify-between items-center gap-4">
+					<div class="flex items-center space-x-3">
+						<div class="x-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-2xl shadow-lg font-game">
+							🌱 
+						</div>
+						<div>
+							<h1 class="text-xl sm:text-2xl font-bold font-game leading-none text-emerald-900">SHIFT</h1>
+							<p class="text-xs text-emerald-700 font-medium">Eco Word Search & Save</p>
+						</div>
+					</div>
+					
+					<!-- Stats Display -->
+					<div class="flex items-center space-x-6 text-sm font-semibold">
+						<div class="text-center">
+							<span class="text-xs text-slate-500 uppercase tracking-wider block">Score</span>
+							<span id="scoreDisplay" class="text-xl font-bold text-slate-800 font-game">0</span>
+						</div>
+						<div class="text-center">
+							<span class="text-xs text-slate-500 uppercase tracking-wider block">Streak</span>
+							<span id="streakDisplay" class="text-xl font-bold text-amber-600 font-game">0 🔥</span>
+						</div>
+					</div>
+					
+					<!-- Category Switcher Buttons -->
+					<div class="flex gap-2 w-full sm:w-auto justify-center">
+						<button id="catLandBtn" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-emerald-600 text-white shadow-md hover:bg-emerald-500 transition">
+							🐾 Land Collectives
+						</button>
+						<button id="catAquaticBtn" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition">
+							🌊 Aquatic Collectives
+						</button>
+					</div>
+				</div>
+				
+				<!-- Eco-Shift Gauge -->
+				<div class="mt-4">
+					<div class="flex justify-between items-center text-xs font-bold mb-1">
+						<span id="gaugeLabel" class="text-slate-600">ECOSYSTEM HEALTH</span>
+						<span id="gaugePercent" class="text-emerald-700">50% CLEAN</span>
+					</div>
+					<div class="w-full bg-slate-200 rounded-full h-3.5 p-0.5 shadow-inner overflow-hidden">
+						<div id="ecoGauge" class="gauge-fill h-full bg-emerald-500 rounded-full w-1/2"></div>
+					</div>
+				</div>
+			</header>
+			
+			<!-- CENTER GAMEPLAY AREA -->
+			<main class="flex-grow flex flex-col justify-center items-center my-2 sm:my-6">
+				<div class="dark-glass-panel rounded-3xl p-6 sm:p-8 w-full max-w-3xl text-center shadow-2xl relative overflow-hidden border border-emerald-500/30">
+					
+					<!-- Category Sub-title / Hint -->
+					<div class="mb-4">
+						<span id="categoryBadge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+							Land Animals
+						</span>
+						<h2 id="phraseHint" class="text-lg sm:text-xl text-slate-300 font-medium mt-2">
+							A <span class="text-emerald-400 font-bold underline decoration-emerald-500 decoration-2">???</span> of ants
+						</h2>
+					</div>
+					
+					<!-- Target Word Puzzle Tiles -->
+					<div id="wordContainer" class="flex flex-wrap justify-center gap-2 sm:gap-3 my-6 sm:my-8 min-h-[60px] items-center">
+						<!-- Dynamic Letter Slots inserted by JS -->
+					</div>
+					
+					<!-- Game Message Prompt -->
+					<div id="statusMessage" class="text-sm sm:text-base font-semibold text-emerald-300 h-6">
+						Guess a letter to shift the atmosphere toward vibrant life!
+					</div>
+				</div>
+			</main>
+			
+			<!-- BOTTOM INTERACTIVE KEYBOARD -->
+			<footer class="w-full max-w-3xl mx-auto mb-2">
+				<div id="keyboard" class="glass-panel p-3 sm:p-4 rounded-2xl shadow-xl flex flex-col gap-2">
+					<!-- Row 1 -->
+					<div class="flex justify-center gap-1 sm:gap-1.5">
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">Q</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">W</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">E</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">R</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">T</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">Y</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">U</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">I</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">O</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">P</button>
+					</div>
+					<!-- Row 2 -->
+					<div class="flex justify-center gap-1 sm:gap-1.5">
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">A</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">S</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">D</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">F</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">G</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">H</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">J</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">K</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">L</button>
+					</div>
+					<!-- Row 3 -->
+					<div class="flex justify-center gap-1.5">
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">Z</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">X</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">C</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">V</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">B</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:text-base hover:bg-emerald-50">N</button>
+						<button class="key-btn w-8 sm:w-11 h-10 sm:h-12 bg-white text-slate-800 rounded-lg font-bold text-sm sm:textbase hover:bg-emerald-50">M</button>
+					</div>
+				</div>
+			</footer>
+		</div>
+		
+		<!-- ECO FACT & RESULT MODAL -->
+		<div id="modalOverlay" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+			<div class="glass-panel text-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
+				<div id="modalIcon" class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+					🌳
+				</div>
+				<h2 id="modalTitle" class="text-2xl font-bold font-game text-center text-slate-800 mb-2">Ecosystem Restored!</h2>
+				<p id="modalPhrase" class="text-center font-semibold text-emerald-700 mb-4 text-lg">A PRIDE of lions</p>
+				
+				<div class="bg-emerald-50/80 border border-emerald-200/60 rounded-2xl p-4 mb-6">
+					<h3 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1 flex items-center gap-1">
+						<span>💡</span> Eco-Discovery & Knowledge
+					</h3>
+					<p id="modalFact" class="text-sm text-slate-700 leading-relaxed">
+						Lions hunt collaboratively and protect large contiguous territories. Conserving apex predators helps stabilize local ecosystem populations and vegetation balance!
+					</p>
+				</div>
+				
+				<div class="flex justify-between items-center bg-slate-100 rounded-xl p-3 mb-6 text-sm font-semibold">
+					<span class="text-slate-600">Shift Bonus Score</span>
+					<span id="modalScoreBonus" class="text-emerald-600 font-bold">+150 pts</span>
+				</div>
+				
+				<button id="nextPhraseBtn" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold font-game text-lg rounded-xl shadow-lg transition active:scale-[0.99]">
+					Shift To Next Word ➔
+				</button>
+			</div>
+		</div>
+		
+		<script src="game.js"></script>
+	</body>
+</html>
